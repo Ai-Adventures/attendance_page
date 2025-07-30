@@ -1,0 +1,32 @@
+name: Update Short URL Daily
+
+on:
+  schedule:
+    - cron: "30 2 * * *"  # 8:00 AM IST (2:30 UTC)
+  workflow_dispatch:
+
+jobs:
+  update-url:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run script
+        run: python generate_short_url.py
+
+      - name: Commit and push
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add shortlink.json
+          git commit -m "Auto-update shortlink"
+          git push

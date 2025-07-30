@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI ADVENTURES Attendance Verification</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    #form-frame {
+      display: none;
+      width: 100%;
+      height: 90vh;
+      border: none;
+    }
+  </style>
+  <script>
+    const COORDS_JSON = "coords.json";
+    const SHORTLINK_JSON = "shortlink.json";
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371; // Earth radius in km
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) ** 2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    async function verifyLocationAndEmbedForm() {
+      try {
+        const coordsRes = await fetch(COORDS_JSON);
+        const coords = await coordsRes.json();
+
+        const ALLOWED_LAT = coords.latitude;
+        const ALLOWED_LON = coords.longitude;
+        const RADIUS = coords.radius;
+
+        if (!navigator.geolocation) {
+          document.getElementById("message").innerText = "Geolocation not supported by your browser.";
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const { latitude, longitude } = position.coords;
+          const distance = getDistance(latitude, longitude, ALLOWED_LAT, ALLOWED_LON);
+
+          if (distance <= RADIUS) {
+            try {
+              const res = await fetch(SHORTLINK_JSON);
+              const data = await res.json();
+              document.getElementById("form-frame").src = data.url;
+              document.getElementById("form-frame").style.display = "block";
+              document.getElementById("message").style.display = "none";
+            } catch (err) {
+              document.getElementById("message").innerText = "Failed to load attendance form.";
+            }
+          } else {
+            document.getElementById("message").innerText =
+              "You're not in the allowed location to mark attendance.";
+          }
+        }, () => {
+          document.getElementById("message").innerText =
+            "Location access denied. Cannot verify attendance.";
+        });
+
+      } catch (error) {
+        document.getElementById("message").innerText = "Failed to load location configuration.";
+      }
+    }
+
+    window.onload = verifyLocationAndEmbedForm;
+  </script>
+</head>
+<body>
+  <h2 id="message">Verifying your location...</h2>
+  <iframe id="form-frame"></iframe>
+</body>
+</html>
