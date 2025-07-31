@@ -1,83 +1,43 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>AI ADVENTURES Attendance Verification</title>
+  <meta charset="UTF-8">
+  <title>Attendance Fetcher</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
-    #form-frame {
-      display: none;
-      width: 100%;
-      height: 90vh;
-      border: none;
-    }
+    body { font-family: Arial, sans-serif; padding: 2rem; }
+    #response { margin-top: 1rem; white-space: pre-wrap; background: #f0f0f0; padding: 1rem; border-radius: 6px; }
+    button { padding: 0.6rem 1rem; font-size: 1rem; }
   </style>
-  <script>
-    const COORDS_JSON = "coords.json";
-    const SHORTLINK_JSON = "shortlink.json";
-
-    function getDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371; // Earth radius in km
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a =
-        Math.sin(dLat / 2) ** 2 +
-        Math.cos(lat1 * Math.PI / 180) *
-        Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon / 2) ** 2;
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c;
-    }
-
-    async function verifyLocationAndEmbedForm() {
-      try {
-        const coordsRes = await fetch(COORDS_JSON);
-        const coords = await coordsRes.json();
-
-        const ALLOWED_LAT = coords.latitude;
-        const ALLOWED_LON = coords.longitude;
-        const RADIUS = coords.radius;
-
-        if (!navigator.geolocation) {
-          document.getElementById("message").innerText = "Geolocation not supported by your browser.";
-          return;
-        }
-
-        navigator.geolocation.getCurrentPosition(async (position) => {
-          const { latitude, longitude } = position.coords;
-          const distance = getDistance(latitude, longitude, ALLOWED_LAT, ALLOWED_LON);
-
-          if (distance <= RADIUS) {
-            try {
-              const res = await fetch(SHORTLINK_JSON);
-              const data = await res.json();
-              document.getElementById("form-frame").src = data.url;
-              document.getElementById("form-frame").style.display = "block";
-              document.getElementById("message").style.display = "none";
-            } catch (err) {
-              document.getElementById("message").innerText = "Failed to load attendance form.";
-            }
-          } else {
-            document.getElementById("message").innerText =
-              "You're not in the allowed location to mark attendance.";
-          }
-        }, () => {
-          document.getElementById("message").innerText =
-            "Location access denied. Cannot verify attendance.";
-        });
-
-      } catch (error) {
-        document.getElementById("message").innerText = "Failed to load location configuration.";
-      }
-    }
-
-    window.onload = verifyLocationAndEmbedForm;
-  </script>
 </head>
 <body>
-  <h2 id="message">Verifying your location...</h2>
-  <iframe id="form-frame"></iframe>
+  <h2>Fetch Attendance</h2>
+  <button onclick="fetchAttendance()">Get Attendance</button>
+  <div id="response">Click the button to load attendance data.</div>
+
+  <script>
+    async function fetchAttendance() {
+      const responseBox = document.getElementById('response');
+      responseBox.innerText = "Fetching attendance data...";
+
+      try {
+        const response = await fetch('https://gnlfh7fsh9.execute-api.ap-south-1.amazonaws.com/default/attendance_lambda', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error("HTTP error " + response.status);
+        }
+
+        const data = await response.json();
+        responseBox.innerText = JSON.stringify(data, null, 2);
+      } catch (err) {
+        responseBox.innerText = "Error: " + err.message;
+        console.error(err);
+      }
+    }
+  </script>
 </body>
 </html>
