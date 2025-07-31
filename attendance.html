@@ -54,7 +54,7 @@
         document.getElementById('status').innerText = "Verifying location...";
 
         try {
-          const response = await fetch("https://<YOUR_API_GATEWAY_URL>/prod/attendance");
+          const response = await fetch("https://gnlfh7fsh9.execute-api.ap-south-1.amazonaws.com/default/attendance_lambda");
           const data = await response.json();
 
           const allowedLat = data.latitude;
