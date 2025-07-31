@@ -30,6 +30,13 @@
       font-size: 18px;
       white-space: pre-line;
     }
+    #formFrame {
+      margin-top: 30px;
+      width: 90%;
+      height: 600px;
+      border: none;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -39,9 +46,12 @@
 
   <div id="status"></div>
 
+  <iframe id="formFrame"></iframe>
+
   <script>
     async function fetchAttendance() {
       const statusEl = document.getElementById('status');
+      const iframeEl = document.getElementById('formFrame');
       statusEl.innerText = "Getting your location...";
 
       if (!navigator.geolocation) {
@@ -70,9 +80,11 @@
           const distance = getDistanceFromLatLonInKm(userLat, userLon, allowedLat, allowedLon);
 
           if (distance <= 0.1) {
-            statusEl.innerText = "Location verified. Redirecting to attendance form...";
-            setTimeout(() => window.location.href = tallyUrl, 2000);
+            statusEl.innerText = "Location verified. Loading attendance form...";
+            iframeEl.src = tallyUrl;
+            iframeEl.style.display = "block";
           } else {
+            iframeEl.style.display = "none";
             statusEl.innerText = `You are not at the authorized location.\nDistance from target: ${distance.toFixed(3)} km`;
           }
 
@@ -87,7 +99,7 @@
     }
 
     function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-      const R = 6371; // Radius of the Earth in km
+      const R = 6371;
       const dLat = deg2rad(lat2 - lat1);
       const dLon = deg2rad(lon2 - lon1);
       const a =
