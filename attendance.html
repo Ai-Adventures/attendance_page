@@ -28,6 +28,7 @@
     #status {
       margin-top: 20px;
       font-size: 18px;
+      white-space: pre-line;
     }
   </style>
 </head>
@@ -40,10 +41,11 @@
 
   <script>
     async function fetchAttendance() {
-      document.getElementById('status').innerText = "Getting your location...";
+      const statusEl = document.getElementById('status');
+      statusEl.innerText = "Getting your location...";
 
       if (!navigator.geolocation) {
-        document.getElementById('status').innerText = "Geolocation is not supported by your browser.";
+        statusEl.innerText = "Geolocation is not supported by your browser.";
         return;
       }
 
@@ -51,12 +53,16 @@
         const userLat = position.coords.latitude;
         const userLon = position.coords.longitude;
 
-        document.getElementById('status').innerText = "Verifying location...";
+        statusEl.innerText = "Verifying location...";
 
         try {
           const response = await fetch("https://gnlfh7fsh9.execute-api.ap-south-1.amazonaws.com/default/attendance_lambda");
-          const data = await response.json();
 
+          if (!response.ok) {
+            throw new Error("HTTP error " + response.status);
+          }
+
+          const data = await response.json();
           const allowedLat = data.latitude;
           const allowedLon = data.longitude;
           const tallyUrl = data.tally_url;
@@ -64,23 +70,24 @@
           const distance = getDistanceFromLatLonInKm(userLat, userLon, allowedLat, allowedLon);
 
           if (distance <= 0.1) {
-            document.getElementById('status').innerText = "Location verified. Redirecting to attendance form...";
-            window.location.href = tallyUrl;
+            statusEl.innerText = "Location verified. Redirecting to attendance form...";
+            setTimeout(() => window.location.href = tallyUrl, 2000);
           } else {
-            document.getElementById('status').innerText = `You are not at the authorized location.\nDistance: ${distance.toFixed(3)} km`;
+            statusEl.innerText = `You are not at the authorized location.\nDistance from target: ${distance.toFixed(3)} km`;
           }
 
         } catch (error) {
           console.error("Error fetching attendance config:", error);
-          document.getElementById('status').innerText = "Failed to fetch attendance configuration.";
+          statusEl.innerText = "Failed to fetch attendance configuration.";
         }
+
       }, (error) => {
-        document.getElementById('status').innerText = "Unable to retrieve your location.";
+        statusEl.innerText = "Unable to retrieve your location. Please allow location access.";
       });
     }
 
     function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-      const R = 6371;
+      const R = 6371; // Radius of the Earth in km
       const dLat = deg2rad(lat2 - lat1);
       const dLon = deg2rad(lon2 - lon1);
       const a =
