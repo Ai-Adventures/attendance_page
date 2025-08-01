@@ -9,10 +9,13 @@
       text-align: center;
       padding-top: 50px;
       background-color: #f4f4f4;
+      margin: 0;
     }
+
     h1 {
       color: #333;
     }
+
     button {
       padding: 15px 30px;
       font-size: 18px;
@@ -22,31 +25,56 @@
       border-radius: 8px;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #0d6ba0;
     }
+
     #status {
       margin-top: 20px;
       font-size: 18px;
       white-space: pre-line;
     }
-    #formFrame {
+
+    .iframe-container {
       margin-top: 30px;
-      width: 90%;
-      height: 600px;
+      display: flex;
+      justify-content: center;
+    }
+
+    #formFrame {
+      width: 100%;
+      max-width: 900px;
+      height: 1000px;
       border: none;
       display: none;
+      overflow: hidden;
     }
+
+    /* Optional: remove scroll from body if iframe causes it */
+    html, body {
+      overflow-x: hidden;
+    }
+
+    .logo {
+    width: 150px;
+    margin: 10px 0;
+  }
   </style>
+
 </head>
 <body>
-
+  <img src="https://raw.githubusercontent.com/ai-adventures/attendance_page/main/aiadventures.png" 
+     alt="AIAdventures Logo" 
+     class="logo" />
   <h1>Attendance System</h1>
   <button onclick="fetchAttendance()">Fetch Attendance</button>
 
   <div id="status"></div>
 
-  <iframe id="formFrame"></iframe>
+  <div class="iframe-container">
+    <iframe id="formFrame" sandbox="allow-forms allow-scripts allow-same-origin"></iframe>
+  </div>
 
   <script>
     async function fetchAttendance() {
