@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Location-Verified Attendance</title>
   <style>
     body {
@@ -84,7 +84,7 @@
             iframeEl.style.display = "block";
           } else {
             iframeEl.style.display = "none";
-            statusEl.innerText = "You are not at the authorized location.";
+            statusEl.innerText = `Access denied. Distance from allowed location: ${data.distance || '?'} km.`;
           }
 
         } catch (error) {
