@@ -285,7 +285,7 @@
         const response = await fetch("https://gnlfh7fsh9.execute-api.ap-south-1.amazonaws.com/default/attendance_lambda");
         if (!response.ok) throw new Error("HTTP error " + response.status);
         const data = await response.json();
-        iframeEl.src = data.tally_form_url;
+        iframeEl.src = data.tally_url;
       } catch (error) {
         formError.textContent = "Error fetching attendance form: " + error.message;
       }
