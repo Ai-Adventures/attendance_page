@@ -187,12 +187,13 @@
     const quoteEl = document.getElementById("quoteText");
 
 
-    fetch("http://api.quotable.io/random?tags=inspirational|motivational")
+    fetch("https://zenquotes.io/api/random")
       .then(res => res.json())
       .then(data => {
-        quoteEl.innerText = `"${data.content}" — ${data.author}`;
+        const quote = data[0];
+        quoteEl.innerText = `"${quote.q}" — ${quote.a}`;
       })
-      .catch(() => {
+      .catch(err => {
         console.error("Quote fetch failed:", err);
         quoteEl.innerText = "Stay motivated and keep learning!";
       });
