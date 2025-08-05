@@ -188,15 +188,19 @@
 
 
     fetch("https://api.quotable.io/random?tags=inspirational|motivational")
-      .then(res => res.json())
-      .then(data => {
-        const quote = data[0];
-        quoteEl.innerText = `"${quote.q}" — ${quote.a}`;
-      })
-      .catch(err => {
+    .then(res => res.json())
+    .then(data => {
+        // Safely access and display quote
+        if (data && data.content && data.author) {
+        quoteEl.innerText = `"${data.content}" — ${data.author}`;
+        } else {
+        quoteEl.innerText = "No quote found, but stay motivated!";
+        }
+    })
+    .catch(err => {
         console.error("Quote fetch failed:", err);
         quoteEl.innerText = "Stay motivated and keep learning!";
-      });
+    });
 
     function getDistance(lat1, lon1, lat2, lon2) {
       const R = 6371000;
