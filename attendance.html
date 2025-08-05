@@ -187,7 +187,7 @@
     const quoteEl = document.getElementById("quoteText");
 
 
-    fetch("https://zenquotes.io/api/random")
+    fetch("https://api.quotable.io/random?tags=inspirational|motivational")
       .then(res => res.json())
       .then(data => {
         const quote = data[0];
