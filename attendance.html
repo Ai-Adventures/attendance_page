@@ -43,7 +43,6 @@
       padding: 20px;
       background-color: #f3f3f3;
       border-bottom: 2px solid #ddd;
-      position: relative;
     }
 
     .header-content {
@@ -77,7 +76,6 @@
     }
 
     #map {
-      height: auto;
       margin-top: 10px;
       text-align: center;
     }
@@ -87,6 +85,7 @@
       max-width: 600px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      height: auto;
     }
 
     .hidden {
@@ -207,7 +206,7 @@
       return R * c;
     }
 
-    // Get location and load static map
+    // Get location and load responsive static map
     async function initStaticMap() {
       try {
         const res = await fetch("https://gnlfh7fsh9.execute-api.ap-south-1.amazonaws.com/default/attendance_lambda");
@@ -227,7 +226,11 @@
 
             locationEl.textContent = `Latitude: ${userLat.toFixed(6)}, Longitude: ${userLng.toFixed(6)}`;
 
-            const staticMapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${userLat},${userLng}&zoom=16&size=600x300&markers=color:red%7Clabel:U%7C${userLat},${userLng}&key=${apiKey}`;
+            const mapWidth = Math.min(600, window.innerWidth - 40);
+            const mapHeight = Math.round(mapWidth * 0.5625); // 16:9 ratio
+
+            const staticMapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${userLat},${userLng}&zoom=16&size=${mapWidth}x${mapHeight}&markers=color:red%7Clabel:U%7C${userLat},${userLng}&key=${apiKey}`;
+
             const img = document.createElement("img");
             img.src = staticMapUrl;
             img.alt = "Static Map of your location";
